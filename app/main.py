@@ -13,12 +13,11 @@ from app.models.category import CategoryORM
 async def lifespan(_: FastAPI):
     from app.models.task import TaskORM
     from app.models.category import CategoryORM
-    Base.metadata.create_all(bind=engine)
     yield
 
 
 settings = get_settings()
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=None)
 
 app.add_middleware(
     CORSMiddleware,
