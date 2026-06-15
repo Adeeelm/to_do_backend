@@ -1,20 +1,17 @@
+import logging
 from contextlib import asynccontextmanager
+from time import perf_counter
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-import logging
-from time import perf_counter
+
 from app.api.router import api_router
 from app.core.config import get_settings
-from app.models.base import Base
-from app.db.session import engine
-from app.models.task import TaskORM
-from app.models.category import CategoryORM
 from app.core.logging import configure_logging
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    from app.models.task import TaskORM
-    from app.models.category import CategoryORM
     yield
 
 
@@ -30,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
+
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next) -> Response:
@@ -58,6 +56,8 @@ async def log_requests(request: Request, call_next) -> Response:
 
 
 _request_counter = 0
+
+
 @app.middleware("http")
 async def count_requests(request: Request, call_next) -> Response:
     global _request_counter
@@ -67,4 +67,6 @@ async def count_requests(request: Request, call_next) -> Response:
     response: Response = await call_next(request)
     response.headers["X-Request-Number"] = str(request_number)
     return response
+
+
 app.include_router(api_router)
